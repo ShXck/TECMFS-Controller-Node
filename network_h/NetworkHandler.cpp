@@ -7,7 +7,6 @@ Network_Handler::Network_Handler() {
 	m_selector.add( m_listener );
 }
 
-
 void Network_Handler::start() {
 
 	std::cout << "Server Running" << std::endl;
