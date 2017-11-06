@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "../Util.h"
 
 #define PORT 7500
 
@@ -14,6 +15,8 @@ class Network_Handler {
 public:
 	Network_Handler();
 	void start();
+	void send( std::string msg, int socket );
+	const int users_connected() const;
 	virtual ~Network_Handler();
 private:
 	sf::TcpListener m_listener;

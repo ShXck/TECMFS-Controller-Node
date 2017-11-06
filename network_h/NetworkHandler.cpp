@@ -32,10 +32,19 @@ void Network_Handler::start() {
 			}
 		}
 	}
-
 	for( std::vector<sf::TcpSocket*>::iterator it = m_users.begin(); it != m_users.end(); it++ ) {
 		delete *it;
 	}
+}
+
+void Network_Handler::send( std::string msg, int socket ) {
+	std::string compressed_msg = util::compress( msg, Z_BEST_COMPRESSION );
+	sf::Packet _packet;
+	if( _packet << compressed_msg ) m_users[socket]->send( _packet );
+}
+
+const int Network_Handler::users_connected() const {
+	return m_users.size();
 }
 
 Network_Handler::~Network_Handler() { }

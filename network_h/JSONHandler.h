@@ -12,8 +12,7 @@ typedef std::string str;
 
 namespace JHandler {
 
-	str build_video_data( str video_id, str bits, int instruction );
-
+	str build_video_data( str video_id, str bits, int instruction, int chunk_order );  // {id,data,instruction,order}
 
 }
 

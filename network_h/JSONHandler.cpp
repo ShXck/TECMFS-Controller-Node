@@ -3,7 +3,7 @@
 
 namespace JHandler {
 
-	str build_video_data( str video_id, str bits, int instruction ) {
+	str build_video_data( str video_id, str bits, int instruction, int chunk_order ) {
 		Doc _doc;
 		_doc.SetObject();
 		Alloc _alloc = _doc.GetAllocator();
@@ -21,6 +21,7 @@ namespace JHandler {
 		}
 
 		_doc.AddMember( "instruction", instruction, _alloc );
+		_doc.AddMember( "order", chunk_order, _alloc );
 
 		rapidjson::StringBuffer str_buffer;
 		Writer _writer( str_buffer );
