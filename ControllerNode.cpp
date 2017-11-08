@@ -100,23 +100,41 @@ void Controller_Node::set_data( Frames frames, std::string video_name ) {
 		for( auto& _byte : _bytes ) {
 			_result += byte_to_bit( _byte );
 		}
+		std::thread data_thread( [this, &video_id, &_result](){
+			distribute_data( video_id, _result );
+			_result.clear();
+		});
+		data_thread.join();
 	}
-	distribute_data( video_id, _result );
 }
 
 void Controller_Node::distribute_data( std::string video_id, std::string result ) {
 
-	int break_point = result.length() / 2 * net_handler.users_connected(); // En lugar de usuarios conectados debe ser DISK_NUMBER, esto es solo para pruebas.
-	int _from = 0;
-	int _to = 100;
-	int chunk_order = 1;
+	int _lenght = result.length();
+	int _parts =  DISK_NUMBER * 2;
 
-	for( int i = 0; i < net_handler.users_connected(); i++ ) {
-		std::string sub_str = result.substr( _from, _to );
-		std::string raw_msg = JHandler::build_video_data( video_id, sub_str, (int)Instruction::STORE_INSTR, chunk_order );
-		net_handler.send( raw_msg, i );
+	Strings _chunks;
 
-	}
+	// Divide el string binario en pedazos.
+    int _at, _pre = 0, i;
+    for( _pre = i = 0; i < _parts; i++ ) {
+        _at = ( _lenght + _lenght * i ) / _parts;
+        _chunks.push_back( result.substr( _pre, _at - _pre ) );
+        _pre = _at;
+    }
+
+    //Lo distribuye en los discos.
+    int& _index = data_handler.order();
+    for( int i = 0; i < DISK_NUMBER; i++ ) {
+    	std::string chunk_1 = JHandler::build_video_data( video_id, _chunks[_index], (int)Instruction::STORE_INSTR, _index );
+    	data_handler.increment_video_order( 1 );
+    	std::string chunk_2 = JHandler::build_video_data( video_id, _chunks[_index], (int)Instruction::STORE_INSTR, _index );
+    	net_handler.send( chunk_1, i );
+    	net_handler.send( chunk_2, i );
+    	data_handler.increment_video_order( 1 );
+    }
+
+    std::cout << "DONE" << std::endl;
 }
 
 Controller_Node::~Controller_Node() { }

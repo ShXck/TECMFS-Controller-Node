@@ -19,7 +19,7 @@
 #include "network_h/JSONHandler.h"
 #include "network_h/NetworkHandler.h"
 
-#define DISK_NUMBER 2
+#define DISK_NUMBER 3
 #define MAX_BLOCKS 10
 
 using namespace cv;

@@ -38,9 +38,11 @@ void Network_Handler::start() {
 }
 
 void Network_Handler::send( std::string msg, int socket ) {
-	std::string compressed_msg = util::compress( msg, Z_BEST_COMPRESSION );
-	sf::Packet _packet;
-	if( _packet << compressed_msg ) m_users[socket]->send( _packet );
+	if( socket < m_users.size() ) {
+		std::string compressed_msg = util::compress( msg, Z_BEST_COMPRESSION );
+		sf::Packet _packet;
+		if( _packet << compressed_msg ) m_users[socket]->send( _packet );
+	}
 }
 
 const int Network_Handler::users_connected() const {

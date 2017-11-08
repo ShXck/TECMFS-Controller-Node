@@ -22,9 +22,13 @@ public:
 	void add_video_data( std::string v_id, std::string v_name );
 	void set_disks_used( std::string v_id, strings used );
 	void set_blocks_used( std::string v_id, strings used );
+	void increment_video_order( int times );
+	void reset_order();
+	int& order();
 	virtual ~Video_Data_Handler();
 private:
 	Data m_data;
+	int order_ctr;
 };
 
 #endif /* VIDEODATAHANDLER_H_ */
