@@ -10,7 +10,6 @@
 #include <opencv2/videoio.hpp>
 #include <thread>
 #include <bitset>
-#include <sys/types.h>
 #include <stdio.h>
 #include <boost/filesystem.hpp>
 #include "Util.h"
@@ -32,7 +31,8 @@ typedef std::vector<Mat> Frames;
 
 enum class Instruction {
 	STORE_INSTR = 1,
-	RETRV_INSTR = 2
+	COLLECT_INSTR = 2,
+	RETRV_INSTR = 3
 };
 
 class Controller_Node {

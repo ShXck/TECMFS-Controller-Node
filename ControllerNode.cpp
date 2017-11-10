@@ -97,25 +97,25 @@ void Controller_Node::set_data( Frames frames, std::string video_name ) {
 	//Determina la representación binaria de todos los frames y los combina.
 	for( auto& frm : frames ) {
 		Bytes _bytes = mat_to_byte( frm );
-		for( auto& _byte : _bytes ) {
-			_result += byte_to_bit( _byte );
+
+		for( byte _byte : _bytes ) {
+			_result += _byte;
 		}
-		std::thread data_thread( [this, &video_id, &_result](){
-			distribute_data( video_id, _result );
-			_result.clear();
-		});
-		data_thread.join();
+
+		distribute_data( video_id, _result );
+		_result.clear();
+		break;
 	}
 }
 
 void Controller_Node::distribute_data( std::string video_id, std::string result ) {
 
 	int _lenght = result.length();
-	int _parts =  DISK_NUMBER * 2;
+	int _parts =  DISK_NUMBER * 6;
 
 	Strings _chunks;
 
-	// Divide el string binario en pedazos.
+	// Divide el string de bytes en pedazos.
     int _at, _pre = 0, i;
     for( _pre = i = 0; i < _parts; i++ ) {
         _at = ( _lenght + _lenght * i ) / _parts;
@@ -124,17 +124,21 @@ void Controller_Node::distribute_data( std::string video_id, std::string result 
     }
 
     //Lo distribuye en los discos.
-    int& _index = data_handler.order();
-    for( int i = 0; i < DISK_NUMBER; i++ ) {
-    	std::string chunk_1 = JHandler::build_video_data( video_id, _chunks[_index], (int)Instruction::STORE_INSTR, _index );
+    int disk_ctr = 0;
+    int& chunk_order = data_handler.order();
+    for( unsigned int i = 0; i < _chunks.size(); i++ ) {
+    	std::string chunk_1 = JHandler::build_video_data( video_id, _chunks[i], (int)Instruction::COLLECT_INSTR, chunk_order );
+    	net_handler.send( chunk_1, disk_ctr );
     	data_handler.increment_video_order( 1 );
-    	std::string chunk_2 = JHandler::build_video_data( video_id, _chunks[_index], (int)Instruction::STORE_INSTR, _index );
-    	net_handler.send( chunk_1, i );
-    	net_handler.send( chunk_2, i );
-    	data_handler.increment_video_order( 1 );
+    	disk_ctr++;
+    	if( disk_ctr == DISK_NUMBER ) disk_ctr = 0;
     }
 
-    std::cout << "DONE" << std::endl;
+    for( int i = 0; i < DISK_NUMBER; i++ ) {
+    	net_handler.send( JHandler::build_instruction_msg( (int)Instruction::STORE_INSTR ), i );
+    }
+
+	std::cout << "DONE" << std::endl;
 }
 
 Controller_Node::~Controller_Node() { }

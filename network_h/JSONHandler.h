@@ -14,5 +14,6 @@ namespace JHandler {
 
 	str build_video_data( str video_id, str bits, int instruction, int chunk_order );  // {id,data,instruction,order}
 
+	str build_instruction_msg( int instruction );
 }
 

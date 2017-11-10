@@ -30,4 +30,18 @@ namespace JHandler {
 		return str_buffer.GetString();
 	}
 
+	str build_instruction_msg( int instruction ) {
+		Doc _doc;
+		_doc.SetObject();
+		Alloc _alloc = _doc.GetAllocator();
+
+		_doc.AddMember( "instruction", instruction, _alloc );
+
+		rapidjson::StringBuffer str_buffer;
+		Writer _writer( str_buffer );
+		_doc.Accept( _writer );
+
+		return str_buffer.GetString();
+	}
+
 }
