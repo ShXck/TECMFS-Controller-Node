@@ -23,6 +23,7 @@ public:
 	void set_disks_used( std::string v_id, strings used );
 	void set_blocks_used( std::string v_id, strings used );
 	void increment_video_order( int times );
+	std::string get_id( std::string v_name );
 	void reset_order();
 	int& order();
 	virtual ~Video_Data_Handler();

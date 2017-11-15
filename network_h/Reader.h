@@ -3,13 +3,15 @@
 #include <iostream>
 #include <string>
 #include <SFML/Network.hpp>
+#include "JSONHandler.h"
+#include "ProcessedTmp.h"
 
 namespace network {
 
 class Reader {
 public:
 	Reader();
-	void read( std::string msg, sf::TcpSocket* user );
+	Processed_Tmp read( sf::Packet packet, sf::TcpSocket* user );
 	virtual ~Reader();
 private:
 	std::string process_msg( std::string msg );

@@ -26,6 +26,15 @@ void Video_Data_Handler::set_disks_used( std::string v_id, strings used ) {
 	}
 }
 
+std::string Video_Data_Handler::get_id( std::string v_name ) {
+
+	for( auto& vid : m_data ) {
+		if( vid.video_name == v_name ) return vid.video_id;
+	}
+
+	return "";
+}
+
 void Video_Data_Handler::increment_video_order( int times ) {
 	order_ctr += times;
 }

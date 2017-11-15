@@ -24,8 +24,12 @@ void Network_Handler::start() {
 					if( m_selector.isReady( *m_users[i] ) ){
 						sf::Packet _packet;
 						if( m_users[i]->receive( _packet ) == sf::Socket::Done ) {
-							std::string _msg;
-							if( _packet >> _msg ) m_reader.read( _msg, m_users[i] );
+							Processed_Tmp resp_result = m_reader.read( _packet, m_users[i] );
+							if( resp_result._instruction != (int)Instruction::JOIN_INSTR ) {
+								m_container.request_result.push_back( resp_result );
+							} else  {
+								m_container.can_join = true;
+							}
 						}
 					}
 				}
@@ -40,13 +44,31 @@ void Network_Handler::start() {
 void Network_Handler::send( std::string msg, int socket ) {
 	if( socket < m_users.size() ) {
 		std::string compressed_msg = util::compress( msg, Z_BEST_COMPRESSION );
+		std::string a = util::compress( "NONE", Z_BEST_COMPRESSION );
 		sf::Packet _packet;
-		if( _packet << compressed_msg ) m_users[socket]->send( _packet );
+		if( _packet << a << compressed_msg ) m_users[socket]->send( _packet );
+	}
+}
+
+void Network_Handler::send( std::string bytes, std::string msg, int socket ) {
+	if( socket < m_users.size() ) {
+		std::string compressed_msg = util::compress( msg, Z_BEST_COMPRESSION );
+		std::string compressed_bytes = util::compress( bytes, Z_BEST_COMPRESSION );
+		sf::Packet _packet;
+		if( _packet << compressed_bytes << compressed_msg ) m_users[socket]->send( _packet );
 	}
 }
 
 const int Network_Handler::users_connected() const {
 	return m_users.size();
+}
+
+void Network_Handler::clean_data() {
+	m_container.request_result.clear();
+}
+
+Response_Data_Container* Network_Handler::request_data() {
+	return &m_container;
 }
 
 Network_Handler::~Network_Handler() { }
