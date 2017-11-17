@@ -28,10 +28,14 @@ public:
 	int frames_of( std::string v_name );
 	void reset_order();
 	int& order();
+	int& disk();
+	void restart_disk_ctr();
+	void increment_disk_ctr();
 	virtual ~Video_Data_Handler();
 private:
 	Data m_data;
 	int order_ctr;
+	int disk_ctr;
 };
 
 #endif /* VIDEODATAHANDLER_H_ */

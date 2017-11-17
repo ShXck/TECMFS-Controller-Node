@@ -8,23 +8,32 @@
 #define FULL_STAT 1
 #define DOWN_STAT 2
 
-struct Disk{
+struct Disk {
 	unsigned int _status;
 	unsigned int blocks_left;
-	std::string disk_id;
-	Disk( std::string id, unsigned int blocks ) : _status( NOT_FULL_STAT ), blocks_left( blocks ), disk_id( id ) {}
+	unsigned int disk_id;
+	Disk( int disk, unsigned int blocks ) : _status( NOT_FULL_STAT ), blocks_left( blocks ), disk_id( disk ) {}
+};
+
+struct Disk_Registry {
+	int _mat;
+	int _disk;
+	Disk_Registry( int mat, int disk ) : _mat( mat ), _disk( disk ) { }
 };
 
 typedef std::vector<Disk> Disk_Collection;
+typedef std::vector<Disk_Registry> Registries;
 
 class Disk_Status_Handler {
 public:
 	Disk_Status_Handler( unsigned int disk_count );
-	bool is_full( std::string disk_id );
-	void add_disk( std::string id, unsigned int blocks );
+	void add_disk( int id, unsigned int blocks = 6 );
+	void add_registry( int mat, int disk );
+	int get_disk( int mat );
 	virtual ~Disk_Status_Handler();
 private:
 	Disk_Collection m_disks;
+	Registries m_registries;
 };
 
 #endif /* DISKSTATUSHANDLER_H_ */

@@ -1,6 +1,6 @@
 #include "VideoDataHandler.h"
 
-Video_Data_Handler::Video_Data_Handler() : order_ctr( 0 ) { }
+Video_Data_Handler::Video_Data_Handler() : order_ctr( 0 ), disk_ctr( 0 ) { }
 
 void Video_Data_Handler::add_video_data( std::string v_id, std::string v_name, int dim_x, int dim_y, int frames ) {
 	m_data.push_back( Video_Data_Container( v_id, v_name, dim_x, dim_y, frames ) );
@@ -33,8 +33,20 @@ int& Video_Data_Handler::order() {
 	return order_ctr;
 }
 
+int& Video_Data_Handler::disk() {
+	return disk_ctr;
+}
+
 void Video_Data_Handler::reset_order() {
 	order_ctr = 0;
+}
+
+void Video_Data_Handler::restart_disk_ctr() {
+	disk_ctr = 0;
+}
+
+void Video_Data_Handler::increment_disk_ctr() {
+	disk_ctr++;
 }
 
 Video_Data_Handler::~Video_Data_Handler() { }

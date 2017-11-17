@@ -11,11 +11,9 @@ Processed_Tmp Reader::read( sf::Packet packet, sf::TcpSocket* user ) {
 
 	if( packet >> _bytes >> dec_msg ) {
 
-		//std::cout << dec_msg << std::endl;
-
 		int _instruction = JHandler::get_value( dec_msg.c_str(), "instruction" ).GetInt();
 
-		if( _instruction != 4 ) {
+		if( _instruction != (int)Instruction::JOIN_INSTR ) {
 
 			std::string vid_id = JHandler::get_value( dec_msg.c_str(), "id").GetString();
 

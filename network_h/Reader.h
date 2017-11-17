@@ -5,6 +5,7 @@
 #include <SFML/Network.hpp>
 #include "JSONHandler.h"
 #include "ProcessedTmp.h"
+#include "Instructions.h"
 
 namespace network {
 

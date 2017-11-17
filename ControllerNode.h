@@ -20,7 +20,7 @@
 #include <algorithm>
 
 #define DISK_NUMBER 3
-#define MAX_BLOCKS 10
+#define MAX_BLOCKS 6
 
 using namespace cv;
 using namespace boost::filesystem;
