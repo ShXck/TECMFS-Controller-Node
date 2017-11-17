@@ -28,7 +28,7 @@ void Network_Handler::start() {
 							if( resp_result._instruction != (int)Instruction::JOIN_INSTR ) {
 								m_container.request_result.push_back( resp_result );
 							} else  {
-								m_container.can_join = true;
+								switch_data_state( true );
 							}
 						}
 					}
@@ -57,6 +57,14 @@ void Network_Handler::send( std::string bytes, std::string msg, int socket ) {
 		sf::Packet _packet;
 		if( _packet << compressed_bytes << compressed_msg ) m_users[socket]->send( _packet );
 	}
+}
+
+void Network_Handler::switch_data_state(  bool state ) {
+	m_container.can_join = state;
+}
+
+void Network_Handler::clean_data_response() {
+	m_container.request_result.clear();
 }
 
 const int Network_Handler::users_connected() const {

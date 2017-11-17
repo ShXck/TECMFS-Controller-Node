@@ -30,6 +30,8 @@ public:
 	void clean_data();
 	const int users_connected() const;
 	Response_Data_Container* request_data();
+	void switch_data_state( bool state );
+	void clean_data_response();
 	virtual ~Network_Handler();
 private:
 	sf::TcpListener m_listener;

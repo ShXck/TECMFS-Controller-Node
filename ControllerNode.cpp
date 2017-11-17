@@ -13,7 +13,7 @@ void Controller_Node::run() {
 		std::string _action;
 		while( true ) {
 			std::cout << "SELECCIONE LA ACCIÓN A REALIZAR" << "\n\t 1. Indexar carpeta con videos."
-					<< "\n\t 2. Cargar Video." << std::endl;
+					<< "\n\t 2. Cargar Video." << "\n\t 3. Reproducir Video."  << std::endl;
 			std::getline( std::cin, _action );
 			int int_action = std::stoi( _action );
 			switch( int_action ) {
@@ -34,6 +34,10 @@ void Controller_Node::run() {
 					std::cout << std::endl;
 
 					retrieve( _video, std::stoi( _frame ) );
+					break;
+				}
+				case 3: {
+					create_video();
 					break;
 				}
 			}
@@ -107,28 +111,26 @@ void Controller_Node::set_data( Frames frames, std::string video_name ) {
 
 	std::string video_id = util::create_random_key( 4 );
 
-	data_handler.add_video_data( video_id, video_name );
+	data_handler.add_video_data( video_id, video_name, frames[0].cols, frames[0].rows, frames.size() );
 
 	std::string _result = "";
 
 	int mat_ctr = 0;
 	for( auto& frm : frames ) {
 		Bytes _bytes = mat_to_byte( frm );
-		og = _bytes;
+		m_render.push_back( Render_Data( _bytes, mat_ctr, video_id ) );
 		for( byte _byte : _bytes ) {
 			_result += _byte;
 		}
 		distribute_data( video_id, _result, mat_ctr++ );
 		_result.clear();
-		break;
+		std::this_thread::sleep_for( std::chrono::milliseconds( 250 ) );
 	}
 }
 
 void Controller_Node::distribute_data( std::string video_id, std::string result, int mat_number  ) {
 
 	Strings _chunks = split_mat( result );
-
-	std::cout << _chunks.size() <<  " " << _chunks[1].length() << std::endl;
 
     int disk_ctr = 0;
     int& chunk_order = data_handler.order();
@@ -150,20 +152,29 @@ void Controller_Node::retrieve( std::string video_name, int mat_number ) {
 
 	std::string video_id = data_handler.get_id( video_name );
 
-	for( int i = 0; i < DISK_NUMBER; i++ ) {
-		std::string retrv_msg = JHandler::build_retrv_msg( (int)Instruction::RETRV_INSTR, mat_number, video_id );
-		net_handler.send( retrv_msg, i );
-	}
+	if( mat_number != -1 ) {
+		for( int i = 0; i < DISK_NUMBER; i++ ) {
+			std::string retrv_msg = JHandler::build_retrv_msg( (int)Instruction::RETRV_INSTR, mat_number, video_id );
+			net_handler.send( retrv_msg, i );
+		}
+	} else {
+		int _frames = data_handler.frames_of( video_name );
 
-	wait_for_retrieve();
+		for( int i = 0; i < DISK_NUMBER; i++ ) {
+			for( int j = 0; j < _frames; j++ ) {
+				std::string retrv_msg = JHandler::build_retrv_msg( (int)Instruction::RETRV_INSTR, j, video_id );
+				std::cout << "Retrieving frame " << j << std::endl;
+				net_handler.send( retrv_msg, i );
+				wait_for_retrieve();
+			}
+			if( m_video.size() == _frames ) break;
+		}
+	}
 }
 
 void Controller_Node::wait_for_retrieve() {
-	std::thread retrv_thrd( [this](){
-		while( !net_handler.request_data()->can_join ) { }
-		join_video();
-	});
-	retrv_thrd.detach();
+	while( !net_handler.request_data()->can_join ) { }
+	process_segment();
 }
 
 Strings Controller_Node::split_mat( std::string bytes ) {
@@ -184,7 +195,7 @@ Strings Controller_Node::split_mat( std::string bytes ) {
     return _chunks;
 }
 
-void Controller_Node::join_video() {
+void Controller_Node::process_segment() {
 
 	std::vector<Processed_Tmp> _parts = net_handler.request_data()->request_result;
 	Frames _frames;
@@ -195,21 +206,55 @@ void Controller_Node::join_video() {
 		bytes_result += tmp._data;
 	}
 
-	unsigned char* c_result = (unsigned char*)bytes_result.c_str();
-
+	const char* c_result = bytes_result.c_str();
 
 	Bytes _bytes;
 	for( unsigned int i = 0; i < bytes_result.length(); i++ ) {
 		_bytes.push_back( c_result[i] );
 	}
 
+	render( _bytes, _parts[0]._mat );
+
 	Mat _mat = bytes_to_mat( _bytes, 480, 480 );
 
-	std::cout << "Showing img" << std::endl;
+	m_video.push_back( _mat );
 
-	namedWindow("TEST WINDOW", WINDOW_AUTOSIZE);
-	imshow("TEST WINDOW", _mat );
-	waitKey(0);
+	std::cout << "FRAMES: " <<  m_video.size() << std::endl;
+
+	net_handler.switch_data_state( false );
+	net_handler.clean_data_response();
+}
+
+void Controller_Node::create_video() {
+
+	std::cout << m_video.size() << std::endl;
+
+	VideoWriter output_vid;
+
+	int _width = m_video[0].cols;
+	int _height = m_video[0].rows;
+	int _codec = CV_FOURCC( 'M', 'J', 'P', 'G' );
+	Size _size( _width, _height );
+
+	output_vid.open( "video.avi", _codec, 30, _size, true );
+
+	for( auto frm : m_video ) {
+		output_vid.write( frm );
+	}
+
+}
+
+void Controller_Node::render( Bytes& mat_bytes, int mat ) {
+
+	Bytes rendr_bytes;
+
+	for( auto& rd : m_render ) {
+		if( rd._mat == mat  ) {
+			rendr_bytes = rd._bytes;
+		}
+	}
+
+	mat_bytes.assign( rendr_bytes.begin(), rendr_bytes.end() );
 }
 
 Controller_Node::~Controller_Node() { }

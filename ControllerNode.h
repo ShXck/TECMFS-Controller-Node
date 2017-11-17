@@ -30,6 +30,15 @@ typedef std::vector<std::string> Strings;
 typedef std::vector<byte> Bytes;
 typedef std::vector<Mat> Frames;
 
+struct Render_Data {
+	Bytes _bytes;
+	int _mat;
+	std::string _video;
+	Render_Data( Bytes bytes, int mat, std::string id ) : _bytes( bytes ), _mat( mat ), _video( id ) { }
+};
+
+typedef std::vector<Render_Data> Video_Render;
+
 class Controller_Node {
 public:
 	Controller_Node();
@@ -47,12 +56,15 @@ private:
 	void retrieve( std::string video_name, int mat_number = -1 );
 	Strings split_mat( std::string bytes );
 	void wait_for_retrieve();
-	void join_video();
+	void process_segment();
+	void render( Bytes& mat_bytes, int mat );
+	void create_video();
 private:
 	network::Network_Handler net_handler;
 	Video_Data_Handler data_handler;
 	Disk_Status_Handler disk_handler;
-	Bytes og;
+	Video_Render m_render;
+	Frames m_video;
 };
 
 #endif /* CONTROLLERNODE_H_ */
