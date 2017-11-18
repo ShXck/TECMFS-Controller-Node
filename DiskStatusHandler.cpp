@@ -20,5 +20,12 @@ int Disk_Status_Handler::get_disk( int mat ) {
 	return -1;
 }
 
+void Disk_Status_Handler::print_reg() {
+
+	for( auto reg : m_registries ) {
+		std::cout << "FRAME " << reg._mat << " AT " << reg._disk << std::endl;
+	}
+}
+
 Disk_Status_Handler::~Disk_Status_Handler() { }
 

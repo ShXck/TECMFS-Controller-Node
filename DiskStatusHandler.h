@@ -30,6 +30,7 @@ public:
 	void add_disk( int id, unsigned int blocks = 6 );
 	void add_registry( int mat, int disk );
 	int get_disk( int mat );
+	void print_reg();
 	virtual ~Disk_Status_Handler();
 private:
 	Disk_Collection m_disks;

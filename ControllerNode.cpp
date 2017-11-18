@@ -125,8 +125,6 @@ void Controller_Node::set_data( Frames frames, std::string video_name ) {
 		distribute_data( video_id, _result, mat_ctr++ );
 		_result.clear();
 		std::this_thread::sleep_for( std::chrono::milliseconds( 250 ) );
-
-		if( mat_ctr == 3 ) break;
 	}
 }
 
@@ -137,12 +135,11 @@ void Controller_Node::distribute_data( std::string video_id, std::string result,
     int& disk_ctr = data_handler.disk();
     int& chunk_order = data_handler.order();
     for( unsigned int i = 0; i < _chunks.size(); i++ ) {
+    	if( disk_ctr == DISK_NUMBER ) data_handler.restart_disk_ctr();
     	std::string data_chunk = JHandler::build_video_data( video_id, (int)Instruction::COLLECT_INSTR, chunk_order, mat_number );
     	net_handler.send( _chunks[i], data_chunk, disk_ctr );
     	disk_handler.add_registry( mat_number, disk_ctr );
-    	//net_handler.send( _chunks[i], chunk_1, 0 );
     	data_handler.increment_video_order( 1 );
-    	if( disk_ctr == DISK_NUMBER ) data_handler.restart_disk_ctr();
     }
     net_handler.send( JHandler::build_instruction_msg( (int)Instruction::STORE_INSTR ), disk_ctr );
     data_handler.increment_disk_ctr();
@@ -161,15 +158,13 @@ void Controller_Node::retrieve( std::string video_name, int mat_number ) {
 	} else {
 		int _frames = data_handler.frames_of( video_name );
 
-		for( int i = 0; i < DISK_NUMBER; i++ ) {
-			for( int j = 0; j < _frames; j++ ) {
-				std::string retrv_msg = JHandler::build_retrv_msg( (int)Instruction::RETRV_INSTR, j, video_id );
-				std::cout << "Retrieving frame " << j << std::endl;
-				int _disk = disk_handler.get_disk( j );
+		for( int j = 0; j < _frames; j++ ) {
+			std::string retrv_msg = JHandler::build_retrv_msg( (int)Instruction::RETRV_INSTR, j, video_id );
+			int _disk = disk_handler.get_disk( j );
+			if( _disk != 2 ) { // TODO: DELETE THE IF // TESTING PURPOSES
 				net_handler.send( retrv_msg, _disk );
 				wait_for_retrieve();
 			}
-			if( m_video.size() == _frames ) break;
 		}
 	}
 }
