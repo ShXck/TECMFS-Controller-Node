@@ -4,12 +4,12 @@ Controller_Node::Controller_Node() : disk_handler( DISK_NUMBER ) {
 	for( int i = 0; i < DISK_NUMBER; i++ ) {
 		disk_handler.add_disk( i );
 	}
-	run();
+	//run();
 }
 
 void Controller_Node::run() {
 
-	std::thread t( [this](){
+	/*std::thread t( [this](){
 		std::string _action;
 		while( true ) {
 			std::cout << "SELECCIONE LA ACCIÓN A REALIZAR" << "\n\t 1. Indexar carpeta con videos."
@@ -43,7 +43,7 @@ void Controller_Node::run() {
 			}
 		}
 	});
-	t.detach();
+	t.detach();*/
 
 	net_handler.start();
 }

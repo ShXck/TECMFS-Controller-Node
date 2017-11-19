@@ -43,9 +43,11 @@ class Controller_Node {
 public:
 	Controller_Node();
 	void run();
+	void index_folder( std::string folder );
+	void retrieve( std::string video_name, int mat_number = -1 );
+	void create_video();
 	virtual ~Controller_Node();
 private:
-	void index_folder( std::string folder );
 	void split_video( std::string video_name, std::string folder );
 	Bytes mat_to_byte( Mat img );
 	Mat bytes_to_mat( Bytes bytes, int w, int h );
@@ -53,12 +55,10 @@ private:
 	byte bit_to_byte( std::string bit );
 	void set_data( Frames frames, std::string video_name );
 	void distribute_data( std::string video_id, std::string result, int mat_number );
-	void retrieve( std::string video_name, int mat_number = -1 );
 	Strings split_mat( std::string bytes );
 	void wait_for_retrieve();
 	void process_segment();
 	void render( Bytes& mat_bytes, int mat );
-	void create_video();
 private:
 	network::Network_Handler net_handler;
 	Video_Data_Handler data_handler;
