@@ -39,6 +39,7 @@ private:
 	Reader m_reader;
 	std::vector<sf::TcpSocket*> m_users;
 	Response_Data_Container m_container;
+	std::string m_ip = "172.19.127.25";
 };
 
 } /* namespace network */

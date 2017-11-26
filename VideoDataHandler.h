@@ -14,7 +14,8 @@ struct Video_Data_Container {
 	unsigned int dim_x;
 	unsigned int dim_y;
 	unsigned int _frames;
-	Video_Data_Container( std::string id, std::string v_name, int x, int y, int frames ) : video_id( id ), video_name( v_name ), dim_x( x ), dim_y( y ), _frames( frames ) {}
+	double _fps;
+	Video_Data_Container( std::string id, std::string v_name, int x, int y, int frames, double fps ) : video_id( id ), video_name( v_name ), dim_x( x ), dim_y( y ), _frames( frames ), _fps( fps ) {}
 };
 
 typedef std::vector<Video_Data_Container> Data;
@@ -22,10 +23,11 @@ typedef std::vector<Video_Data_Container> Data;
 class Video_Data_Handler {
 public:
 	Video_Data_Handler();
-	void add_video_data( std::string v_id, std::string v_name, int dim_x, int dim_y , int frames );
+	void add_video_data( std::string v_id, std::string v_name, int dim_x, int dim_y , int frames, double fps );
 	void increment_video_order( int times );
 	std::string get_id( std::string v_name );
 	int frames_of( std::string v_name );
+	double fps_of( std::string v_name );
 	void reset_order();
 	int& order();
 	int& disk();

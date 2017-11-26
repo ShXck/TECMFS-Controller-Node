@@ -37,6 +37,16 @@ struct Render_Data {
 	Render_Data( Bytes bytes, int mat, std::string id ) : _bytes( bytes ), _mat( mat ), _video( id ) { }
 };
 
+struct Tmp_Data {
+	std::string curr_vid;
+	double curr_vid_fps;
+
+	void reset() {
+		curr_vid.clear();
+		curr_vid_fps = 0.0;
+	}
+};
+
 typedef std::vector<Render_Data> Video_Render;
 
 class Controller_Node {
@@ -46,6 +56,8 @@ public:
 	void index_folder( std::string folder );
 	void retrieve( std::string video_name, int mat_number = -1 );
 	void create_video();
+	void play_video();
+	bool video_exist( std::string name );
 	virtual ~Controller_Node();
 private:
 	void split_video( std::string video_name, std::string folder );
@@ -53,7 +65,7 @@ private:
 	Mat bytes_to_mat( Bytes bytes, int w, int h );
 	std::string byte_to_bit( byte source );
 	byte bit_to_byte( std::string bit );
-	void set_data( Frames frames, std::string video_name );
+	void set_data( Frames frames, std::string video_name, double fps );
 	void distribute_data( std::string video_id, std::string result, int mat_number );
 	Strings split_mat( std::string bytes );
 	void wait_for_retrieve();
@@ -65,6 +77,7 @@ private:
 	Disk_Status_Handler disk_handler;
 	Video_Render m_render;
 	Frames m_video;
+	Tmp_Data m_tmp;
 };
 
 #endif /* CONTROLLERNODE_H_ */

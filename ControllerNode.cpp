@@ -68,6 +68,7 @@ void Controller_Node::split_video( std::string video_name, std::string folder ) 
 
 	v_cap.set( CV_CAP_PROP_POS_FRAMES, 0 );
 	double frame_count = v_cap.get( CV_CAP_PROP_FRAME_COUNT );
+	double _fps = v_cap.get( CV_CAP_PROP_FPS );
 
 	int frm_ctr = 0;
 
@@ -80,7 +81,7 @@ void Controller_Node::split_video( std::string video_name, std::string folder ) 
 
 	v_cap.release();
 
-	set_data( total_frames, video_name );
+	set_data( total_frames, video_name, _fps );
 }
 
 Bytes Controller_Node::mat_to_byte( Mat img ) {
@@ -107,11 +108,11 @@ byte Controller_Node::bit_to_byte( std::string bit ) {
 	return _result;
 }
 
-void Controller_Node::set_data( Frames frames, std::string video_name ) {
+void Controller_Node::set_data( Frames frames, std::string video_name, double fps ) {
 
 	std::string video_id = util::create_random_key( 4 );
 
-	data_handler.add_video_data( video_id, video_name, frames[0].cols, frames[0].rows, frames.size() );
+	data_handler.add_video_data( video_id, video_name, frames[0].cols, frames[0].rows, frames.size(), fps );
 
 	std::string _result = "";
 
@@ -124,7 +125,7 @@ void Controller_Node::set_data( Frames frames, std::string video_name ) {
 		}
 		distribute_data( video_id, _result, mat_ctr++ );
 		_result.clear();
-		std::this_thread::sleep_for( std::chrono::milliseconds( 250 ) );
+		std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
 	}
 }
 
@@ -148,6 +149,9 @@ void Controller_Node::distribute_data( std::string video_id, std::string result,
 void Controller_Node::retrieve( std::string video_name, int mat_number ) {
 
 	std::string video_id = data_handler.get_id( video_name );
+
+	m_tmp.curr_vid = video_id;
+	m_tmp.curr_vid_fps = data_handler.fps_of( video_name );
 
 	if( mat_number != -1 ) {
 		for( int i = 0; i < DISK_NUMBER; i++ ) {
@@ -228,19 +232,48 @@ void Controller_Node::create_video() {
 
 	VideoWriter output_vid;
 
+	double _fps = m_tmp.curr_vid_fps;
 	int _width = m_video[0].cols;
 	int _height = m_video[0].rows;
 	int _codec = CV_FOURCC( 'M', 'J', 'P', 'G' );
 	Size _size( _width, _height );
 
-	output_vid.open( "video.avi", _codec, 30, _size, true );
+	output_vid.open( "video.avi", _codec, _fps - ( _fps / 2 ), _size, true );  //fps-(fps/2)
 
 	for( auto frm : m_video ) {
 		output_vid.write( frm );
 	}
 
 	m_video.clear();
+}
 
+void Controller_Node::play_video() {
+
+	std::string window_name = "Controller-VideoPlayer";
+
+	VideoCapture v_cap( "video.avi" );
+
+	if( !v_cap.isOpened() ) std::cout << "VIDEO NOT FOUND" << std::endl;
+
+	namedWindow( window_name, 1 );
+
+	for( ;; ) {
+		Mat _frame;
+		v_cap >> _frame;
+		imshow( window_name, _frame );
+		if( waitKey( 30 ) >= 0 ) break;
+	}
+
+	v_cap.release();
+}
+
+bool Controller_Node::video_exist( std::string name ) {
+
+	std::string _id = data_handler.get_id( name );
+
+	if( _id.empty() ) return false;
+
+	return true;
 }
 
 void Controller_Node::render( Bytes& mat_bytes, int mat ) {
@@ -252,7 +285,6 @@ void Controller_Node::render( Bytes& mat_bytes, int mat ) {
 			rendr_bytes = rd._bytes;
 		}
 	}
-
 	mat_bytes.assign( rendr_bytes.begin(), rendr_bytes.end() );
 }
 

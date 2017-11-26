@@ -7,7 +7,7 @@
 #include "ControllerNode.h"
 #include <thread>
 
-#define MENU_ITEMS 4
+#define MENU_ITEMS 5
 #define WINDOW_WIDTH 350
 #define WINDOW_HEIGHT 500
 
@@ -23,6 +23,7 @@ private:
 	void draw();
 	void handle_input( const sf::Event& event );
 	void check_button_clicked( sf::Vector2f pos );
+	void set_action_msg( std::string msg );
 private:
 	Controller_Node m_controller;
 	sf::RenderWindow m_window;

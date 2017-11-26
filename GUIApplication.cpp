@@ -33,7 +33,7 @@ void GUI_Application::set_text() {
 		std::cout << "ERROR OPENING FONT" << std::endl;
 	}
 
-	std::string buttons_caps[] = { "Index folder", "Load Video", "Play Video", "" };
+	std::string buttons_caps[] = { "Index folder", "Load Video", "Play Video", "", "" };
 
 	for( int i = 0; i < MENU_ITEMS; i++ ) {
 		m_text[i].setFont( m_font );
@@ -44,8 +44,10 @@ void GUI_Application::set_text() {
 		m_text[i].setPosition( sf::Vector2f( m_buttons[i].getPosition().x + 25, m_buttons[i].getPosition().y + 5 ) );
 	}
 
+	m_text[MENU_ITEMS - 2].setFillColor( sf::Color::Black );
 	m_text[MENU_ITEMS - 1].setFillColor( sf::Color::Black );
 
+	m_text[MENU_ITEMS - 1].setPosition( sf::Vector2f( 25, 450 ) );
 }
 
 void GUI_Application::set_rects() {
@@ -53,14 +55,14 @@ void GUI_Application::set_rects() {
 	int _pos = 170;
 	int _distance = 70;
 
-	for( int i = 0; i < MENU_ITEMS; i++ ) {
+	for( int i = 0; i < MENU_ITEMS - 1; i++ ) {
 		m_buttons.emplace_back( sf::Vector2f( 250, 50 ) );
 		m_buttons[i].setFillColor( sf::Color::Black );
 		m_buttons[i].setPosition( 50, _pos );
 		_pos += _distance;
 	}
 
-	m_buttons[MENU_ITEMS - 1].setFillColor( sf::Color( 222, 223, 224 ) );
+	m_buttons[MENU_ITEMS - 2].setFillColor( sf::Color( 222, 223, 224 ) );
 
 	m_rect_logo.setFillColor( sf::Color::White );
 	m_rect_logo.setSize( sf::Vector2f( 350, 100 ) );
@@ -83,22 +85,34 @@ void GUI_Application::draw() {
 }
 
 void GUI_Application::check_button_clicked( sf::Vector2f pos ) {
+
 	if( m_buttons[0].getGlobalBounds().contains( pos ) ) {
-		std::cout << "Index Folder" << std::endl;
 		m_controller.index_folder( "/home/marcelo/Desktop/TECMFS_Folder" );
+
 	} else if( m_buttons[1].getGlobalBounds().contains( pos ) ) {
-		m_controller.retrieve( m_text[MENU_ITEMS - 1].getString() );
-		m_input.clear();
-		m_text[MENU_ITEMS - 1].setString( m_input );
-		m_buttons[MENU_ITEMS - 1].setFillColor( sf::Color( 222, 223, 224 ) );
+		std::string video_name = m_text[MENU_ITEMS - 2].getString();
+		bool video_exists = m_controller.video_exist( video_name );
+		if( video_exists ) {
+			m_controller.retrieve( video_name );
+			m_input.clear();
+			m_text[MENU_ITEMS - 2].setString( m_input );
+		} else {
+			set_action_msg( "Video Not Found" );
+		}
+
 	} else if( m_buttons[2].getGlobalBounds().contains( pos ) ) {
 		m_controller.create_video();
+		//m_controller.play_video();
 	}
+}
+
+void GUI_Application::set_action_msg( std::string msg ) {
+	m_text[MENU_ITEMS - 1].setString( msg );
 }
 
 void GUI_Application::handle_input( const sf::Event& event ) {
 
-	switch( event.type) {
+	switch( event.type ) {
 		case sf::Event::Closed: {
 			m_window.close();
 			break;
@@ -227,8 +241,12 @@ void GUI_Application::handle_input( const sf::Event& event ) {
 				case sf::Keyboard::Return: {
 					is_ready = true;
 				}
+				case sf::Keyboard::BackSpace: {
+					m_input.pop_back();
+					break;
+				}
 			}
-			m_text[MENU_ITEMS - 1].setString( m_input );
+			m_text[MENU_ITEMS - 2].setString( m_input );
 		}
 	}
 }
