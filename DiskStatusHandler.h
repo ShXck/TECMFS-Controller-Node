@@ -27,8 +27,23 @@ typedef std::vector<Disk_Registry> Registries;
 class Disk_Status_Handler {
 public:
 	Disk_Status_Handler( unsigned int disk_count );
+	/**
+	 * Agrega un nuevo disco al RAID.
+	 * @param id la id del disco.
+	 * @param blocks la cantidad de bloques del disco.
+	 */
 	void add_disk( int id, unsigned int blocks = 6 );
+	/**
+	 * Agrega un registro nuevo.
+	 * @param mat el frame.
+	 * @param disk el disco donde se ubica el frame.
+	 */
 	void add_registry( int mat, int disk );
+	/**
+	 * Obtiene el numero de disco donde se ubica cierto frame.
+	 * @param mat el número de frame.
+	 * @return el disco donde se ubica.
+	 */
 	int get_disk( int mat );
 	void print_reg();
 	virtual ~Disk_Status_Handler();

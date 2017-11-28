@@ -8,6 +8,9 @@ public:
 	Processed_Tmp( std::string video_id, std::string data, int instruction, int mat, int order );
 	Processed_Tmp( int instr );
 	Processed_Tmp();
+	/**
+	 * Elimina los datos del objeto.
+	 */
 	void delete_data();
 	bool operator < ( const Processed_Tmp& tmp );
 	virtual ~Processed_Tmp();

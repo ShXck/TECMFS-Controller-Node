@@ -71,9 +71,6 @@ const int Network_Handler::users_connected() const {
 	return m_users.size();
 }
 
-void Network_Handler::clean_data() {
-	m_container.request_result.clear();
-}
 
 Response_Data_Container* Network_Handler::request_data() {
 	return &m_container;

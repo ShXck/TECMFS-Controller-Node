@@ -24,13 +24,39 @@ struct Response_Data_Container {
 class Network_Handler {
 public:
 	Network_Handler();
+	/**
+	 * Inicia la ejecución.
+	 */
 	void start();
+	/**
+	 * Envía información a un socket.
+	 * @param msg el mensaje.
+	 * @param socket la posición del socket.
+	 */
 	void send( std::string msg, int socket );
+	/**
+	 * Envía información a un socket que incluye bytes.
+	 * @param bytes los bytes.
+	 * @param msg el mensaje.
+	 * @param socket la posición del socket.
+	 */
 	void send( std::string bytes, std::string msg, int socket );
-	void clean_data();
+	/**
+	 * Reinicia la información del Response Data Container.
+	 */
 	const int users_connected() const;
+	/**
+	 * @return El contenedor con los datos de la respuesta.
+	 */
 	Response_Data_Container* request_data();
+	/**
+	 * Cambia el estado de respuesta.
+	 * @param state el estado.
+	 */
 	void switch_data_state( bool state );
+	/**
+	 *
+	 */
 	void clean_data_response();
 	virtual ~Network_Handler();
 private:
@@ -39,7 +65,6 @@ private:
 	Reader m_reader;
 	std::vector<sf::TcpSocket*> m_users;
 	Response_Data_Container m_container;
-	std::string m_ip = "172.19.127.25";
 };
 
 } /* namespace network */

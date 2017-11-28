@@ -12,6 +12,12 @@ namespace network {
 class Reader {
 public:
 	Reader();
+	/**
+	 * Lee los datos provenientes de los discos.
+	 * @param packet el packet con la información.
+	 * @param user el socket emisor.
+	 * @return un contenedor con la información recuperada.
+	 */
 	Processed_Tmp read( sf::Packet packet, sf::TcpSocket* user );
 	virtual ~Reader();
 private:

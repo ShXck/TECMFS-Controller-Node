@@ -165,10 +165,10 @@ void Controller_Node::retrieve( std::string video_name, int mat_number ) {
 		for( int j = 0; j < _frames; j++ ) {
 			std::string retrv_msg = JHandler::build_retrv_msg( (int)Instruction::RETRV_INSTR, j, video_id );
 			int _disk = disk_handler.get_disk( j );
-			if( _disk != 2 ) { // TODO: DELETE THE IF // TESTING PURPOSES
-				net_handler.send( retrv_msg, _disk );
-				wait_for_retrieve();
-			}
+			//if( _disk != 2 ) { // TODO: DELETE THE IF // TESTING PURPOSES
+			net_handler.send( retrv_msg, _disk );
+			wait_for_retrieve();
+			//}
 		}
 	}
 }
