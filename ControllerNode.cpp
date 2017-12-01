@@ -127,6 +127,9 @@ void Controller_Node::set_data( Frames frames, std::string video_name, double fp
 		_result.clear();
 		std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
 	}
+
+	data_handler.reset_order();
+	data_handler.restart_disk_ctr();
 }
 
 void Controller_Node::distribute_data( std::string video_id, std::string result, int mat_number  ) {
@@ -165,10 +168,10 @@ void Controller_Node::retrieve( std::string video_name, int mat_number ) {
 		for( int j = 0; j < _frames; j++ ) {
 			std::string retrv_msg = JHandler::build_retrv_msg( (int)Instruction::RETRV_INSTR, j, video_id );
 			int _disk = disk_handler.get_disk( j );
-			//if( _disk != 2 ) { // TODO: DELETE THE IF // TESTING PURPOSES
-			net_handler.send( retrv_msg, _disk );
-			wait_for_retrieve();
-			//}
+			if( _disk != 2 ) { // TODO: DELETE THE IF // TESTING PURPOSES
+				net_handler.send( retrv_msg, _disk );
+				wait_for_retrieve();
+			}
 		}
 	}
 }
@@ -214,13 +217,11 @@ void Controller_Node::process_segment() {
 		_bytes.push_back( c_result[i] );
 	}
 
-	render( _bytes, _parts[0]._mat );
+	render( _bytes, _parts[0]._mat, _parts[0].vid_id );
 
 	Mat _mat = bytes_to_mat( _bytes, 480, 480 );
 
 	m_video.push_back( _mat );
-
-	std::cout << "FRAMES: " <<  m_video.size() << std::endl;
 
 	net_handler.switch_data_state( false );
 	net_handler.clean_data_response();
@@ -276,12 +277,12 @@ bool Controller_Node::video_exist( std::string name ) {
 	return true;
 }
 
-void Controller_Node::render( Bytes& mat_bytes, int mat ) {
+void Controller_Node::render( Bytes& mat_bytes, int mat, std::string vid_id ) {
 
 	Bytes rendr_bytes;
 
 	for( auto& rd : m_render ) {
-		if( rd._mat == mat  ) {
+		if( rd._mat == mat && rd._video == vid_id ) {
 			rendr_bytes = rd._bytes;
 		}
 	}

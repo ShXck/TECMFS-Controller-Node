@@ -149,7 +149,7 @@ private:
 	 * @param mat_bytes los bytes recuperados.
 	 * @param mat el número de mat.
 	 */
-	void render( Bytes& mat_bytes, int mat );
+	void render( Bytes& mat_bytes, int mat, std::string vid_id );
 private:
 	network::Network_Handler net_handler;
 	Video_Data_Handler data_handler;
